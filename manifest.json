@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "databody",
+  "display_name": "DataBody",
+  "version": "1.0.0",
+  "description": "Health and fitness tracking for AI assistants - log nutrition, track macros, manage goals",
+  "long_description": "DataBody MCP provides AI assistants with access to your health and fitness data. Log food and track macros, manage calorie and protein goals, view workout history, get AI-powered meal suggestions, chat with a nutrition coach, and more.",
+  "author": {
+    "name": "DataBody",
+    "url": "https://databody.ai"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nickmerwin/databody-mcp.git"
+  },
+  "homepage": "https://databody.ai",
+  "support": "https://github.com/nickmerwin/databody-mcp/issues",
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/dist/index.js"
+      ],
+      "env": {}
+    }
+  },
+  "tools_generated": true,
+  "prompts_generated": false,
+  "keywords": [
+    "databody",
+    "health",
+    "fitness",
+    "nutrition",
+    "macros",
+    "calories",
+    "protein",
+    "diet",
+    "tracking"
+  ],
+  "license": "MIT",
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=20.0.0"
+    }
+  }
+}

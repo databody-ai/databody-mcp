@@ -1,0 +1,56 @@
+{
+  "name": "@databody/mcp",
+  "version": "1.0.0",
+  "description": "MCP server for DataBody - Health and Fitness Tracking",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "databody-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"No tests yet\" && exit 0",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "databody",
+    "health",
+    "fitness",
+    "nutrition",
+    "macros",
+    "claude",
+    "ai",
+    "anthropic"
+  ],
+  "author": "DataBody",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nickmerwin/databody-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nickmerwin/databody-mcp/issues"
+  },
+  "homepage": "https://github.com/nickmerwin/databody-mcp#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  }
+}
