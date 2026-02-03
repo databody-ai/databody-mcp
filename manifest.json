@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "databody",
   "display_name": "DataBody",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Health and fitness tracking for AI assistants - log nutrition, track macros, manage goals",
   "long_description": "DataBody MCP provides AI assistants with access to your health and fitness data. Log food and track macros, manage calorie and protein goals, view workout history, get AI-powered meal suggestions, chat with a nutrition coach, and more.",
   "author": {
