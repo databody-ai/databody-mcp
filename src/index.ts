@@ -908,6 +908,101 @@ const tools: Tool[] = [
     },
   },
 
+  // ==================== SAVED MEALS ====================
+  {
+    name: "list_saved_meals",
+    description: "List all saved meals with their items and total macros. Saved meals are reusable meal templates for quick logging.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: "create_saved_meal",
+    description: "Create a saved meal template for quick reuse. Include a name and list of food items with macros.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        name: { type: "string", description: "Name of the saved meal (e.g., 'Morning Oatmeal Bowl')" },
+        meal_type: {
+          type: "string",
+          enum: ["breakfast", "lunch", "dinner", "snack"],
+          description: "Default meal type for this saved meal",
+        },
+        items: {
+          type: "array",
+          description: "Array of food items in the meal",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string", description: "Name of the food" },
+              emoji: { type: "string", description: "Emoji for the food item (e.g., '🥚')" },
+              brand: { type: "string", description: "Brand name (optional)" },
+              serving_size: { type: "string", description: "Serving size (e.g., '150g')" },
+              serving_quantity: { type: "number", description: "Number of servings" },
+              calories: { type: "integer", description: "Calories per serving" },
+              protein_grams: { type: "number", description: "Protein in grams" },
+              carbs_grams: { type: "number", description: "Carbs in grams" },
+              fat_grams: { type: "number", description: "Fat in grams" },
+              fiber_grams: { type: "number", description: "Fiber in grams" },
+            },
+            required: ["name", "calories", "protein_grams", "carbs_grams", "fat_grams"],
+          },
+        },
+      },
+      required: ["name", "items"],
+    },
+  },
+  {
+    name: "update_saved_meal",
+    description: "Update a saved meal's name, meal type, or replace its items entirely",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "integer", description: "ID of the saved meal to update" },
+        name: { type: "string", description: "New name for the saved meal" },
+        meal_type: {
+          type: "string",
+          enum: ["breakfast", "lunch", "dinner", "snack"],
+          description: "New default meal type",
+        },
+        items: {
+          type: "array",
+          description: "Full replacement array of food items (replaces all existing items)",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string", description: "Name of the food" },
+              emoji: { type: "string", description: "Emoji for the food item" },
+              brand: { type: "string", description: "Brand name (optional)" },
+              serving_size: { type: "string", description: "Serving size (e.g., '150g')" },
+              serving_quantity: { type: "number", description: "Number of servings" },
+              calories: { type: "integer", description: "Calories per serving" },
+              protein_grams: { type: "number", description: "Protein in grams" },
+              carbs_grams: { type: "number", description: "Carbs in grams" },
+              fat_grams: { type: "number", description: "Fat in grams" },
+              fiber_grams: { type: "number", description: "Fiber in grams" },
+            },
+            required: ["name", "calories", "protein_grams", "carbs_grams", "fat_grams"],
+          },
+        },
+      },
+      required: ["id"],
+    },
+  },
+  {
+    name: "delete_saved_meal",
+    description: "Delete a saved meal by ID",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "integer", description: "ID of the saved meal to delete" },
+      },
+      required: ["id"],
+    },
+  },
+
   // ==================== GOALS ====================
   {
     name: "get_current_goal",
@@ -1749,6 +1844,86 @@ async function handleTool(
     case "get_recents": {
       const result = await apiCall("/foods/recents");
       return JSON.stringify(result, null, 2);
+    }
+
+    // ==================== SAVED MEALS ====================
+    case "list_saved_meals": {
+      const result = await apiCall("/saved_meals");
+      return JSON.stringify(result, null, 2);
+    }
+
+    case "create_saved_meal": {
+      const items = args.items as Array<{
+        name: string;
+        emoji?: string;
+        brand?: string;
+        serving_size?: string;
+        serving_quantity?: number;
+        calories: number;
+        protein_grams: number;
+        carbs_grams: number;
+        fat_grams: number;
+        fiber_grams?: number;
+      }>;
+
+      const result = await apiCall("/saved_meals", "POST", {
+        name: args.name,
+        meal_type: args.meal_type,
+        saved_meal_items_attributes: items.map((item, index) => ({
+          name: item.name,
+          emoji: item.emoji,
+          brand: item.brand,
+          serving_size: item.serving_size,
+          serving_quantity: item.serving_quantity || 1,
+          calories: item.calories,
+          protein_grams: item.protein_grams,
+          carbs_grams: item.carbs_grams,
+          fat_grams: item.fat_grams,
+          fiber_grams: item.fiber_grams || 0,
+          position: index,
+        })),
+      });
+      return JSON.stringify(result, null, 2);
+    }
+
+    case "update_saved_meal": {
+      const body: Record<string, unknown> = {};
+      if (args.name !== undefined) body.name = args.name;
+      if (args.meal_type !== undefined) body.meal_type = args.meal_type;
+      if (args.items !== undefined) {
+        const items = args.items as Array<{
+          name: string;
+          emoji?: string;
+          brand?: string;
+          serving_size?: string;
+          serving_quantity?: number;
+          calories: number;
+          protein_grams: number;
+          carbs_grams: number;
+          fat_grams: number;
+          fiber_grams?: number;
+        }>;
+        body.items = items.map((item, index) => ({
+          name: item.name,
+          emoji: item.emoji,
+          brand: item.brand,
+          serving_size: item.serving_size,
+          serving_quantity: item.serving_quantity || 1,
+          calories: item.calories,
+          protein_grams: item.protein_grams,
+          carbs_grams: item.carbs_grams,
+          fat_grams: item.fat_grams,
+          fiber_grams: item.fiber_grams || 0,
+          position: index,
+        }));
+      }
+      const result = await apiCall(`/saved_meals/${args.id}`, "PATCH", body);
+      return JSON.stringify(result, null, 2);
+    }
+
+    case "delete_saved_meal": {
+      await apiCall(`/saved_meals/${args.id}`, "DELETE");
+      return JSON.stringify({ success: true, message: "Saved meal deleted" });
     }
 
     // ==================== GOALS ====================
