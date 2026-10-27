@@ -1,0 +1,1944 @@
+[
+  {
+    "name": "list_workout_moves",
+    "description": "List the user's reusable move library.",
+    "method": "GET",
+    "path": "/workout_moves",
+    "operation": "moves",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "create_workout_move",
+    "description": "Create a reusable workout move.",
+    "method": "POST",
+    "path": "/workout_moves",
+    "operation": "save_move",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Editable move name"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Load unit",
+          "enum": [
+            "lb",
+            "kg"
+          ]
+        },
+        "load_basis": {
+          "type": "string",
+          "description": "Load interpretation",
+          "enum": [
+            "total",
+            "per_hand",
+            "bodyweight"
+          ]
+        },
+        "notes": {
+          "type": "string",
+          "description": "Plain text notes up to 2,000 characters; empty string clears them",
+          "maxLength": 2000
+        },
+        "variation_ids": {
+          "type": "array",
+          "description": "Replace this move's bidirectional variation links with these available library move IDs. Empty clears links. Omit to preserve links; weights and history remain separate.",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "maxItems": 50,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "update_workout_move",
+    "description": "Edit a move definition. Session history keeps its original snapshot.",
+    "method": "PATCH",
+    "path": "/workout_moves/{move_id}",
+    "operation": "save_move",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "move_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "name": {
+          "type": "string",
+          "description": "Editable move name"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Load unit",
+          "enum": [
+            "lb",
+            "kg"
+          ]
+        },
+        "load_basis": {
+          "type": "string",
+          "description": "Load interpretation",
+          "enum": [
+            "total",
+            "per_hand",
+            "bodyweight"
+          ]
+        },
+        "notes": {
+          "type": "string",
+          "description": "Plain text notes up to 2,000 characters; empty string clears them",
+          "maxLength": 2000
+        },
+        "variation_ids": {
+          "type": "array",
+          "description": "Replace this move's bidirectional variation links with these available library move IDs. Empty clears links. Omit to preserve links; weights and history remain separate.",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "maxItems": 50,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "move_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "archive_workout_move",
+    "description": "Remove a move from the library while preserving history.",
+    "method": "DELETE",
+    "path": "/workout_moves/{move_id}",
+    "operation": "archive_move",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "move_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        }
+      },
+      "required": [
+        "move_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "list_workout_programs",
+    "description": "List configured programs, days and move targets.",
+    "method": "GET",
+    "path": "/workout_programs",
+    "operation": "programs",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "get_workout_program",
+    "description": "Get the complete program and its current revision before editing it.",
+    "method": "GET",
+    "path": "/workout_programs/{program_id}",
+    "operation": "program",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "program_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        }
+      },
+      "required": [
+        "program_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "create_workout_program",
+    "description": "Create an entire program with ordered days, moves and set targets in one transaction.",
+    "method": "POST",
+    "path": "/workout_programs",
+    "operation": "save_program",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Program name"
+        },
+        "days": {
+          "type": "array",
+          "description": "Complete ordered day list. A supplied days array replaces the previous list; retain IDs for existing days and moves.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Stable day ID"
+              },
+              "name": {
+                "type": "string",
+                "description": "Day name, such as Upper A"
+              },
+              "moves": {
+                "type": "array",
+                "description": "Ordered moves; reorder the array or duplicate an occurrence using a new id",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Stable occurrence ID; generate a new ID when duplicating a day move"
+                    },
+                    "move_id": {
+                      "type": "integer",
+                      "description": "User-owned resource ID returned by a read tool"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Move name, required when creating a new library move"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "description": "Load unit",
+                      "enum": [
+                        "lb",
+                        "kg"
+                      ]
+                    },
+                    "load_basis": {
+                      "type": "string",
+                      "description": "Meaning of the load",
+                      "enum": [
+                        "total",
+                        "per_hand",
+                        "bodyweight"
+                      ]
+                    },
+                    "increment": {
+                      "type": "number",
+                      "description": "Suggested future load increase",
+                      "exclusiveMinimum": 0
+                    },
+                    "sets": {
+                      "type": "array",
+                      "description": "Ordered planned sets",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "reps_min": {
+                            "type": "integer",
+                            "description": "Bottom of target rep range",
+                            "minimum": 1
+                          },
+                          "reps_max": {
+                            "type": "integer",
+                            "description": "Top of target rep range",
+                            "minimum": 1
+                          },
+                          "weight": {
+                            "type": "number",
+                            "description": "Planned load in the move's unit",
+                            "minimum": 0
+                          },
+                          "rest_seconds": {
+                            "type": "integer",
+                            "description": "Rest cue threshold; clock continues after this",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "reps_min",
+                          "reps_max",
+                          "weight",
+                          "rest_seconds"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1,
+                      "maxItems": 10
+                    },
+                    "notes": {
+                      "type": "string",
+                      "description": "Initial notes for a new library move. For existing types, use update_workout_move or set_workout_move_notes to edit notes.",
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [
+                    "sets"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 50
+              }
+            },
+            "required": [
+              "name",
+              "moves"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 20
+        }
+      },
+      "required": [
+        "name",
+        "days"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "update_workout_program",
+    "description": "Edit the future program, including add/edit/remove/duplicate/reorder days and move occurrences. Does not change an active session.",
+    "method": "PATCH",
+    "path": "/workout_programs/{program_id}",
+    "operation": "save_program",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "program_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string",
+          "description": "Program name"
+        },
+        "days": {
+          "type": "array",
+          "description": "Complete ordered day list. A supplied days array replaces the previous list; retain IDs for existing days and moves.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Stable day ID"
+              },
+              "name": {
+                "type": "string",
+                "description": "Day name, such as Upper A"
+              },
+              "moves": {
+                "type": "array",
+                "description": "Ordered moves; reorder the array or duplicate an occurrence using a new id",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Stable occurrence ID; generate a new ID when duplicating a day move"
+                    },
+                    "move_id": {
+                      "type": "integer",
+                      "description": "User-owned resource ID returned by a read tool"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Move name, required when creating a new library move"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "description": "Load unit",
+                      "enum": [
+                        "lb",
+                        "kg"
+                      ]
+                    },
+                    "load_basis": {
+                      "type": "string",
+                      "description": "Meaning of the load",
+                      "enum": [
+                        "total",
+                        "per_hand",
+                        "bodyweight"
+                      ]
+                    },
+                    "increment": {
+                      "type": "number",
+                      "description": "Suggested future load increase",
+                      "exclusiveMinimum": 0
+                    },
+                    "sets": {
+                      "type": "array",
+                      "description": "Ordered planned sets",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "reps_min": {
+                            "type": "integer",
+                            "description": "Bottom of target rep range",
+                            "minimum": 1
+                          },
+                          "reps_max": {
+                            "type": "integer",
+                            "description": "Top of target rep range",
+                            "minimum": 1
+                          },
+                          "weight": {
+                            "type": "number",
+                            "description": "Planned load in the move's unit",
+                            "minimum": 0
+                          },
+                          "rest_seconds": {
+                            "type": "integer",
+                            "description": "Rest cue threshold; clock continues after this",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "reps_min",
+                          "reps_max",
+                          "weight",
+                          "rest_seconds"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1,
+                      "maxItems": 10
+                    },
+                    "notes": {
+                      "type": "string",
+                      "description": "Initial notes for a new library move. For existing types, use update_workout_move or set_workout_move_notes to edit notes.",
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [
+                    "sets"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 50
+              }
+            },
+            "required": [
+              "name",
+              "moves"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 20
+        }
+      },
+      "required": [
+        "program_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "archive_workout_program",
+    "description": "Archive a saved program; retain historical sessions.",
+    "method": "DELETE",
+    "path": "/workout_programs/{program_id}",
+    "operation": "archive_program",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "program_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "program_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "get_active_workout_session",
+    "description": "Look up the current workout before logging sets or changing its sequence. Returns null when none is active.",
+    "method": "GET",
+    "path": "/workout_sessions/active",
+    "operation": "active_session",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "get_workout_session",
+    "description": "Read current or historical set-level details, actual weights, effort, remaining queue, clock anchors and revision.",
+    "method": "GET",
+    "path": "/workout_sessions/{session_id}",
+    "operation": "session",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        }
+      },
+      "required": [
+        "session_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "list_workout_sessions",
+    "description": "List bounded workout-session history by the user's local dates.",
+    "method": "GET",
+    "path": "/workout_sessions",
+    "operation": "sessions",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "start_date": {
+          "type": "string",
+          "description": "YYYY-MM-DD"
+        },
+        "end_date": {
+          "type": "string",
+          "description": "YYYY-MM-DD"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Maximum results, up to 100",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "before_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "start_workout_session",
+    "description": "Start a snapshot of a programmed day or an ad hoc workout. Only one session can be active per user.",
+    "method": "POST",
+    "path": "/workout_sessions",
+    "operation": "start_session",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "program_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "day_id": {
+          "type": "string",
+          "description": "Day ID from the program"
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional session name"
+        },
+        "moves": {
+          "type": "array",
+          "description": "Ad hoc moves when no program is selected",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Stable occurrence ID; generate a new ID when duplicating a day move"
+              },
+              "move_id": {
+                "type": "integer",
+                "description": "User-owned resource ID returned by a read tool"
+              },
+              "name": {
+                "type": "string",
+                "description": "Move name, required when creating a new library move"
+              },
+              "unit": {
+                "type": "string",
+                "description": "Load unit",
+                "enum": [
+                  "lb",
+                  "kg"
+                ]
+              },
+              "load_basis": {
+                "type": "string",
+                "description": "Meaning of the load",
+                "enum": [
+                  "total",
+                  "per_hand",
+                  "bodyweight"
+                ]
+              },
+              "increment": {
+                "type": "number",
+                "description": "Suggested future load increase",
+                "exclusiveMinimum": 0
+              },
+              "sets": {
+                "type": "array",
+                "description": "Ordered planned sets",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "reps_min": {
+                      "type": "integer",
+                      "description": "Bottom of target rep range",
+                      "minimum": 1
+                    },
+                    "reps_max": {
+                      "type": "integer",
+                      "description": "Top of target rep range",
+                      "minimum": 1
+                    },
+                    "weight": {
+                      "type": "number",
+                      "description": "Planned load in the move's unit",
+                      "minimum": 0
+                    },
+                    "rest_seconds": {
+                      "type": "integer",
+                      "description": "Rest cue threshold; clock continues after this",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "reps_min",
+                    "reps_max",
+                    "weight",
+                    "rest_seconds"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 10
+              },
+              "notes": {
+                "type": "string",
+                "description": "Initial notes for a new library move. For existing types, use update_workout_move or set_workout_move_notes to edit notes.",
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "sets"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "started_at": {
+          "type": "string",
+          "description": "ISO 8601 timestamp including UTC offset"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Plain text notes up to 2,000 characters; empty string clears them",
+          "maxLength": 2000
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "set_workout_session_notes",
+    "description": "Save or clear notes for an active or completed workout session, without changing logged sets.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Plain text notes up to 2,000 characters; empty string clears them",
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "notes"
+      ],
+      "additionalProperties": false
+    },
+    "command": "set_notes"
+  },
+  {
+    "name": "set_workout_move_notes",
+    "description": "Save reusable exercise setup notes through a session occurrence. Applies to this move type in future workouts too; may be used after completion.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "move_id": {
+          "type": "string",
+          "description": "Session move occurrence ID"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Plain text notes up to 2,000 characters; empty string clears them",
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "move_id",
+        "notes"
+      ],
+      "additionalProperties": false
+    },
+    "command": "set_move_notes"
+  },
+  {
+    "name": "log_workout_set",
+    "description": "Log the current set's actual reps and weight, then immediately start count-up rest.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "set_id": {
+          "type": "string",
+          "description": "Stable session set ID from get_workout_session"
+        },
+        "reps": {
+          "type": "integer",
+          "description": "Actual completed reps; never substitute a planned target",
+          "minimum": 0
+        },
+        "weight": {
+          "type": "number",
+          "description": "Actual load in this set's recorded unit",
+          "minimum": 0
+        },
+        "rir": {
+          "type": "integer",
+          "description": "Optional reps in reserve: 0, 1, or 2 meaning 2+",
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "heavier_next_time": {
+          "type": "boolean",
+          "description": "User explicitly marked heavier next time"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "set_id",
+        "reps",
+        "weight"
+      ],
+      "additionalProperties": false
+    },
+    "command": "confirm_set"
+  },
+  {
+    "name": "update_workout_set",
+    "description": "Correct actual reps, weight or optional effort on a logged set in an open session.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "set_id": {
+          "type": "string",
+          "description": "Stable session set ID from get_workout_session"
+        },
+        "reps": {
+          "type": "integer",
+          "description": "Actual completed reps; never substitute a planned target",
+          "minimum": 0
+        },
+        "weight": {
+          "type": "number",
+          "description": "Actual load in this set's recorded unit",
+          "minimum": 0
+        },
+        "rir": {
+          "type": "integer",
+          "description": "Optional reps in reserve: 0, 1, or 2 meaning 2+",
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "heavier_next_time": {
+          "type": "boolean",
+          "description": "User explicitly marked heavier next time"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "set_id"
+      ],
+      "additionalProperties": false
+    },
+    "command": "correct_set"
+  },
+  {
+    "name": "undo_workout_set",
+    "description": "Undo the last logged set during rest; preserve extra moves and sequence changes.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "command": "undo_set"
+  },
+  {
+    "name": "pause_workout_session",
+    "description": "Pause both workout and rest clocks.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "command": "pause"
+  },
+  {
+    "name": "resume_workout_session",
+    "description": "Resume a paused workout without counting paused time.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "command": "resume"
+  },
+  {
+    "name": "advance_workout_session",
+    "description": "Finish the current rest and enter rep-confirmation mode for the next queued set.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "command": "advance"
+  },
+  {
+    "name": "return_to_workout_rest",
+    "description": "Return from rep confirmation to the same running rest clock after an accidental Next. Does not undo or log sets.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "command": "return_to_rest"
+  },
+  {
+    "name": "complete_workout_session",
+    "description": "Save only logged sets, leaving pending sets unlogged. Creates one linked activity summary.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "healthkit_uuid": {
+          "type": "string",
+          "description": "Optional HealthKit UUID for the same workout"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "command": "complete"
+  },
+  {
+    "name": "cancel_workout_session",
+    "description": "Cancel an open workout only when no sets have been logged; exclude it from history.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "command": "cancel"
+  },
+  {
+    "name": "delete_workout_session",
+    "description": "Delete a completed workout and its linked DataBody activity summary. Apple Health records remain unchanged.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "command": "delete"
+  },
+  {
+    "name": "add_workout_session_move",
+    "description": "Add an extra move for this session only; insert after the current set or append to the end.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "move": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Stable occurrence ID; generate a new ID when duplicating a day move"
+            },
+            "move_id": {
+              "type": "integer",
+              "description": "User-owned resource ID returned by a read tool"
+            },
+            "name": {
+              "type": "string",
+              "description": "Move name, required when creating a new library move"
+            },
+            "unit": {
+              "type": "string",
+              "description": "Load unit",
+              "enum": [
+                "lb",
+                "kg"
+              ]
+            },
+            "load_basis": {
+              "type": "string",
+              "description": "Meaning of the load",
+              "enum": [
+                "total",
+                "per_hand",
+                "bodyweight"
+              ]
+            },
+            "increment": {
+              "type": "number",
+              "description": "Suggested future load increase",
+              "exclusiveMinimum": 0
+            },
+            "sets": {
+              "type": "array",
+              "description": "Ordered planned sets",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "reps_min": {
+                    "type": "integer",
+                    "description": "Bottom of target rep range",
+                    "minimum": 1
+                  },
+                  "reps_max": {
+                    "type": "integer",
+                    "description": "Top of target rep range",
+                    "minimum": 1
+                  },
+                  "weight": {
+                    "type": "number",
+                    "description": "Planned load in the move's unit",
+                    "minimum": 0
+                  },
+                  "rest_seconds": {
+                    "type": "integer",
+                    "description": "Rest cue threshold; clock continues after this",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "reps_min",
+                  "reps_max",
+                  "weight",
+                  "rest_seconds"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1,
+              "maxItems": 10
+            },
+            "notes": {
+              "type": "string",
+              "description": "Initial notes for a new library move. For existing types, use update_workout_move or set_workout_move_notes to edit notes.",
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "sets"
+          ],
+          "additionalProperties": false
+        },
+        "position": {
+          "type": "string",
+          "description": "Insertion position",
+          "enum": [
+            "next",
+            "end"
+          ]
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "move"
+      ],
+      "additionalProperties": false
+    },
+    "command": "add_move"
+  },
+  {
+    "name": "replace_workout_session_move",
+    "description": "Replace only an occurrence's unlogged sets with another move in the same queue position. Preserve completed sets and the saved program. Review replacement load and targets first.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "move_id": {
+          "type": "string",
+          "description": "Session move occurrence ID to replace"
+        },
+        "move": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Stable occurrence ID; generate a new ID when duplicating a day move"
+            },
+            "move_id": {
+              "type": "integer",
+              "description": "User-owned resource ID returned by a read tool"
+            },
+            "name": {
+              "type": "string",
+              "description": "Move name, required when creating a new library move"
+            },
+            "unit": {
+              "type": "string",
+              "description": "Load unit",
+              "enum": [
+                "lb",
+                "kg"
+              ]
+            },
+            "load_basis": {
+              "type": "string",
+              "description": "Meaning of the load",
+              "enum": [
+                "total",
+                "per_hand",
+                "bodyweight"
+              ]
+            },
+            "increment": {
+              "type": "number",
+              "description": "Suggested future load increase",
+              "exclusiveMinimum": 0
+            },
+            "sets": {
+              "type": "array",
+              "description": "Ordered planned sets",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "reps_min": {
+                    "type": "integer",
+                    "description": "Bottom of target rep range",
+                    "minimum": 1
+                  },
+                  "reps_max": {
+                    "type": "integer",
+                    "description": "Top of target rep range",
+                    "minimum": 1
+                  },
+                  "weight": {
+                    "type": "number",
+                    "description": "Planned load in the move's unit",
+                    "minimum": 0
+                  },
+                  "rest_seconds": {
+                    "type": "integer",
+                    "description": "Rest cue threshold; clock continues after this",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "reps_min",
+                  "reps_max",
+                  "weight",
+                  "rest_seconds"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1,
+              "maxItems": 10
+            },
+            "notes": {
+              "type": "string",
+              "description": "Initial notes for a new library move. For existing types, use update_workout_move or set_workout_move_notes to edit notes.",
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "sets"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "move_id",
+        "move"
+      ],
+      "additionalProperties": false
+    },
+    "command": "replace_move"
+  },
+  {
+    "name": "set_next_workout_move",
+    "description": "Move this session move's remaining sets ahead. Keep the current set in place and preserve all other pending sets.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "move_id": {
+          "type": "string",
+          "description": "Session move occurrence ID, not the library's numeric move ID"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "move_id"
+      ],
+      "additionalProperties": false
+    },
+    "command": "set_next"
+  },
+  {
+    "name": "remove_workout_session_set",
+    "description": "Remove one upcoming, unlogged set from this workout only. Preserve logged work, the saved program and the running rest clock.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "set_id": {
+          "type": "string",
+          "description": "Stable session set ID from get_workout_session"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "set_id"
+      ],
+      "additionalProperties": false
+    },
+    "command": "remove_set"
+  },
+  {
+    "name": "remove_workout_session_move",
+    "description": "Remove all upcoming sets of a session move occurrence from this workout only. Preserve its logged sets, other moves, the saved program and the running rest clock.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "move_id": {
+          "type": "string",
+          "description": "Session move occurrence ID, not the library's numeric move ID"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "move_id"
+      ],
+      "additionalProperties": false
+    },
+    "command": "remove_move"
+  },
+  {
+    "name": "set_workout_set_weight",
+    "description": "Change a pending set's planned weight, optionally including remaining sets of the same move.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/command",
+    "operation": "command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "occurred_at": {
+          "type": "string",
+          "description": "Optional original event time with UTC offset, for offline replay"
+        },
+        "set_id": {
+          "type": "string",
+          "description": "Stable session set ID from get_workout_session"
+        },
+        "weight": {
+          "type": "number",
+          "description": "Actual load in this set's recorded unit",
+          "minimum": 0
+        },
+        "remaining": {
+          "type": "boolean",
+          "description": "Also update remaining pending sets of this move"
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "set_id",
+        "weight"
+      ],
+      "additionalProperties": false
+    },
+    "command": "set_weight"
+  },
+  {
+    "name": "get_move_history",
+    "description": "Read actual historical sets for one library move. Use before answering questions about previous weights or reps.",
+    "method": "GET",
+    "path": "/workout_moves/{move_id}/history",
+    "operation": "move_history",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "move_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Maximum sets, up to 100",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "move_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "get_workout_move_performance",
+    "description": "Read exercise history, reusable notes, per-session sets and trends. Compatible load setups determine records; deleted and unfinished workouts are excluded.",
+    "method": "GET",
+    "path": "/workout_moves/{move_id}/performance",
+    "operation": "move_performance",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "move_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Session page size",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "before_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        }
+      },
+      "required": [
+        "move_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "get_workout_session_performance",
+    "description": "Read last-time performance, real weight/rep records and volume versus a previous matching complete workout. Uses only history preceding this session; first sessions do not claim records.",
+    "method": "GET",
+    "path": "/workout_sessions/{session_id}/performance",
+    "operation": "session_performance",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        }
+      },
+      "required": [
+        "session_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "get_workout_progression",
+    "description": "Calculate per-move suggestions from actual complete sets and optional effort. This only recommends; it does not edit the program.",
+    "method": "GET",
+    "path": "/workout_sessions/{session_id}/progression",
+    "operation": "progression",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        }
+      },
+      "required": [
+        "session_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "apply_workout_progression",
+    "description": "Apply explicitly selected load increases to the future program; retain the session's actual history.",
+    "method": "POST",
+    "path": "/workout_sessions/{session_id}/apply_progression",
+    "operation": "apply_progression",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "description": "Current revision returned by the resource; prevents overwriting a newer edit",
+          "minimum": 0
+        },
+        "move_ids": {
+          "type": "array",
+          "description": "Session move occurrence IDs to increase",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "session_id",
+        "expected_revision",
+        "move_ids"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "import_workout_session",
+    "description": "Import a completed workout from supplied structured records. Preserve actual dates, reps, units and weights; resolve missing data rather than invent it. Reuse client_id to avoid duplicate imports.",
+    "method": "POST",
+    "path": "/workout_sessions/import",
+    "operation": "import_session",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "client_id": {
+          "type": "string",
+          "description": "Stable caller-generated ID; reuse the same ID when retrying the same operation",
+          "maxLength": 100
+        },
+        "program_id": {
+          "type": "integer",
+          "description": "User-owned resource ID returned by a read tool"
+        },
+        "day_id": {
+          "type": "string",
+          "description": "Day ID from the program"
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional session name"
+        },
+        "moves": {
+          "type": "array",
+          "description": "Ad hoc moves when no program is selected",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Stable occurrence ID; generate a new ID when duplicating a day move"
+              },
+              "move_id": {
+                "type": "integer",
+                "description": "User-owned resource ID returned by a read tool"
+              },
+              "name": {
+                "type": "string",
+                "description": "Move name, required when creating a new library move"
+              },
+              "unit": {
+                "type": "string",
+                "description": "Load unit",
+                "enum": [
+                  "lb",
+                  "kg"
+                ]
+              },
+              "load_basis": {
+                "type": "string",
+                "description": "Meaning of the load",
+                "enum": [
+                  "total",
+                  "per_hand",
+                  "bodyweight"
+                ]
+              },
+              "increment": {
+                "type": "number",
+                "description": "Suggested future load increase",
+                "exclusiveMinimum": 0
+              },
+              "sets": {
+                "type": "array",
+                "description": "Ordered planned sets",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "reps_min": {
+                      "type": "integer",
+                      "description": "Bottom of target rep range",
+                      "minimum": 1
+                    },
+                    "reps_max": {
+                      "type": "integer",
+                      "description": "Top of target rep range",
+                      "minimum": 1
+                    },
+                    "weight": {
+                      "type": "number",
+                      "description": "Planned load in the move's unit",
+                      "minimum": 0
+                    },
+                    "rest_seconds": {
+                      "type": "integer",
+                      "description": "Rest cue threshold; clock continues after this",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "reps_min",
+                    "reps_max",
+                    "weight",
+                    "rest_seconds"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 10
+              },
+              "notes": {
+                "type": "string",
+                "description": "Initial notes for a new library move. For existing types, use update_workout_move or set_workout_move_notes to edit notes.",
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "sets"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "started_at": {
+          "type": "string",
+          "description": "ISO 8601 timestamp including UTC offset"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Plain text notes up to 2,000 characters; empty string clears them",
+          "maxLength": 2000
+        },
+        "ended_at": {
+          "type": "string",
+          "description": "Actual end time with UTC offset"
+        },
+        "completed_sets": {
+          "type": "array",
+          "description": "Only sets that were actually completed",
+          "items": {
+            "type": "object",
+            "properties": {
+              "move_id": {
+                "type": "string",
+                "description": "Occurrence ID supplied in moves"
+              },
+              "set_number": {
+                "type": "integer",
+                "description": "One-based set number"
+              },
+              "reps": {
+                "type": "integer",
+                "description": "Actual completed reps; never substitute a planned target",
+                "minimum": 0
+              },
+              "weight": {
+                "type": "number",
+                "description": "Actual load in this set's recorded unit",
+                "minimum": 0
+              },
+              "rir": {
+                "type": "integer",
+                "description": "Optional reps in reserve: 0, 1, or 2 meaning 2+",
+                "enum": [
+                  0,
+                  1,
+                  2
+                ]
+              },
+              "heavier_next_time": {
+                "type": "boolean",
+                "description": "User explicitly marked heavier next time"
+              },
+              "completed_at": {
+                "type": "string",
+                "description": "Actual completion time with UTC offset"
+              }
+            },
+            "required": [
+              "move_id",
+              "set_number",
+              "reps",
+              "weight"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "client_id",
+        "started_at",
+        "ended_at",
+        "moves",
+        "completed_sets"
+      ],
+      "additionalProperties": false
+    }
+  }
+]

@@ -12,14 +12,15 @@ import * as path from "path";
 import * as os from "os";
 import * as http from "http";
 import * as crypto from "crypto";
+import { workoutTools, executeWorkoutTool } from "./workout-tools.js";
 
 // Configuration
-const API_BASE_URL = process.env.DATABODY_API_URL || "http://localhost:3000";
+const API_BASE_URL = process.env.DATABODY_API_URL || "https://databody.ai";
 const CLIENT_ID = "databody-mcp"; // Well-known client ID for the MCP
 const CALLBACK_PORT = parseInt(process.env.DATABODY_CALLBACK_PORT || "8787");
 
 // Token storage
-const TOKEN_FILE = path.join(os.homedir(), ".databody_token.json");
+const TOKEN_FILE = process.env.DATABODY_TOKEN_FILE || path.join(os.homedir(), ".databody_token.json");
 
 interface TokenData {
   access_token: string;
@@ -157,6 +158,7 @@ async function apiCall(
           body: body ? JSON.stringify(body) : undefined,
         });
         if (retryResponse.ok) {
+          if (retryResponse.status === 204) return { success: true };
           return retryResponse.json();
         }
       }
@@ -172,6 +174,7 @@ async function apiCall(
     throw new Error(`API error (${response.status}): ${error}`);
   }
 
+  if (response.status === 204) return { success: true };
   return response.json();
 }
 
@@ -1497,6 +1500,8 @@ async function handleTool(
   name: string,
   args: Record<string, unknown>
 ): Promise<string> {
+  const trainingResult = await executeWorkoutTool(name, args, apiCall);
+  if (trainingResult !== undefined) return trainingResult;
   switch (name) {
     // ==================== AUTHENTICATION ====================
     case "authenticate": {
@@ -2198,7 +2203,7 @@ async function handleTool(
 const server = new Server(
   {
     name: "databody-mcp",
-    version: "1.0.0",
+    version: "1.1.0",
   },
   {
     capabilities: {
@@ -2209,7 +2214,7 @@ const server = new Server(
 
 // Register handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools,
+  tools: [...tools, ...workoutTools],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
